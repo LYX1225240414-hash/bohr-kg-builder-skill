@@ -1,2 +1,13 @@
-# bohr-kg-builder-skill
-Literature knowledge graph builder: entity-relation extraction with evidence binding
+# 知识图谱构建：从文献抽取实体-关系三元组，做别名归一与证据绑定，支持图查询。
+
+玻尔科学空间高校挑战赛 · 北京化工大学分站赛 作品。
+
+核心：读取真实输入 → 遵循明确规则 → 保留来源与证据 → 诚实标注不确定性。含 6 步工作流、自检清单、字段约定、输出示例，以及基于真实论文 arXiv:2011.03269v1 的试跑产物（run/）。
+
+## 目录
+- SKILL.md：工作流与输入输出约定
+- resources/：自检清单、字段字典、输出示例
+- examples/：最小调用示例
+- run/：真实试跑输入与结果
+
+试跑仅演示工作流，非正式评测案例或答案。仅供赛事评审与学习交流。
