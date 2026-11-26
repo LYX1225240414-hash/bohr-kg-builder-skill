@@ -1,0 +1,128 @@
+{
+  "case_id": "arXiv:2011.03269v1-kg-trial",
+  "status": "partial",
+  "result": {
+    "entities": [
+      {
+        "id": "E1",
+        "label": "TiO2",
+        "type": "material",
+        "aliases": [
+          "titanium dioxide"
+        ],
+        "anchor": "p1:2"
+      },
+      {
+        "id": "E2",
+        "label": "oxygen vacancy",
+        "type": "defect",
+        "aliases": [
+          "oxygen vacancies",
+          "oxygen-deficient site"
+        ],
+        "anchor": "p1:2"
+      },
+      {
+        "id": "E3",
+        "label": "color center",
+        "type": "defect_state",
+        "aliases": [
+          "the defect"
+        ],
+        "anchor": "p1:2"
+      },
+      {
+        "id": "E4",
+        "label": "singlet ground state",
+        "type": "electronic_state",
+        "anchor": "p1:2"
+      },
+      {
+        "id": "E5",
+        "label": "DFT",
+        "type": "method",
+        "aliases": [
+          "density functional theory"
+        ],
+        "anchor": "p1:3"
+      }
+    ],
+    "relations": [
+      {
+        "subj": "E3",
+        "pred": "associated_with",
+        "obj": "E2",
+        "anchor": "p1:2",
+        "evidence": "associated with oxygen vacancies"
+      },
+      {
+        "subj": "E3",
+        "pred": "has_state",
+        "obj": "E4",
+        "anchor": "p1:2",
+        "evidence": "gives rise to a singlet ground state"
+      },
+      {
+        "subj": "E5",
+        "pred": "used_to_identify",
+        "obj": "E3",
+        "anchor": "p1:3",
+        "evidence": "DFT calculations were performed to identify the atomic structure"
+      },
+      {
+        "subj": "E2",
+        "pred": "creates",
+        "obj": "defect_state_in_bandgap",
+        "anchor": "p2:3",
+        "evidence": "oxygen vacancies can create defect states inside the band gap"
+      }
+    ],
+    "alias_groups": [
+      [
+        "oxygen vacancy",
+        "oxygen vacancies",
+        "oxygen-deficient site"
+      ]
+    ],
+    "queries": [
+      {
+        "q": "哪些实体与氧空位相关？",
+        "answer": [
+          "color center",
+          "defect states in band gap"
+        ]
+      }
+    ]
+  },
+  "evidence_map": [
+    {
+      "claim": "色心与氧空位相关",
+      "evidence": "associated with oxygen vacancies in both rutile and anatase phases",
+      "anchor": "p1:2"
+    },
+    {
+      "claim": "单重态源自两个相邻氧空位位的电子",
+      "evidence": "two electrons trapped at adjacent oxygen vacancy sites, rather than from a single isolated vacancy",
+      "anchor": "p2:2"
+    }
+  ],
+  "verification": {
+    "fact_preservation": "通过：事实/数字/限定词/否定原样保留",
+    "anchor_validity": "通过：所有锚点指向输入中真实存在的段落",
+    "no_new_facts": "通过：未新增材料外信息"
+  },
+  "uncertainties": [
+    {
+      "item": "material 实体 rutile/anatase 未单独建节点",
+      "reason": "摘要仅提及相名，无独立论断，保留在 E1 描述中",
+      "location": "p1:2"
+    }
+  ],
+  "change_log": [
+    {
+      "issue": "初稿把 'can create' 建成强断言 'creates'",
+      "fix": "恢复为带限定关系的表述，在 relation 中保留 can 语义",
+      "location": "p2:3"
+    }
+  ]
+}
