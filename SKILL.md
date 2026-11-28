@@ -132,7 +132,7 @@ python3 "$K" query --graph /app/work/graph.json --predicate outperforms
 
 ## 资源
 
-- `resources/scripts/kg_lint.py`：**执行内核**。`schema` 导出实体/关系类型与规则；`check` 输出八类结构问题与计数；`query` 按实体/关系类型做邻域子图检索（返回每条边的 anchor 与 evidence）。纯标准库，无第三方依赖。
+- `resources/scripts/kg_lint.py`：**执行内核**。`schema` 导出实体/关系类型与规则；`check` 输出八类结构问题与计数；`query` 按实体/关系类型做邻域子图检索（返回每条边的 anchor 与 evidence）。证据只写论文实体 id（`"evidence":"e4"`）时按"缺原文片段"提示，不判为无支撑。`--out` 可传目录（写入约定文件名）或直接传文件名，两种写法都不会报错。纯标准库，无第三方依赖。
 - `environment/resources.yaml`：资源清单、schema 位置、运行时说明。
 - `resources/checklist.md`：带计数的自检清单（对应 verification 八项）。
 - `resources/field_dict.md`：实体/关系字段字典、锚点格式、强度与方向判定口径。
