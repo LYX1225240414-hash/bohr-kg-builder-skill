@@ -45,6 +45,24 @@ import re
 import sys
 from pathlib import Path
 
+
+def _as_outfile(p, default_name):
+    """--out 兼容层：传目录则写入目录下 default_name，传文件名则直接写该文件。"""
+    path = Path(p)
+    if path.is_dir() or not path.suffix:
+        path = path / default_name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _as_outdir(p):
+    """--out 兼容层：传的是文件名时取其父目录，避免把文件路径当目录用而崩溃。"""
+    path = Path(p)
+    if path.suffix.lower() in (".json", ".md", ".txt", ".yaml", ".yml", ".csv", ".tex", ".bib"):
+        path = path.parent if str(path.parent) not in ("", ".") else Path(".")
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
 SCHEMA = {
     "entity_types": {
         "researcher": "研究者/团队/机构",
@@ -107,8 +125,8 @@ def load_graph(path):
 
 
 def cmd_schema(args):
-    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.out).write_text(json.dumps(SCHEMA, ensure_ascii=False, indent=2), encoding="utf-8")
+    _p = _as_outfile(args.out, "schema.json")
+    _p.write_text(json.dumps(SCHEMA, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"ok": True, "out": args.out,
                       "entity_types": len(SCHEMA["entity_types"]),
                       "relation_types": len(SCHEMA["relation_types"])}, ensure_ascii=False))
@@ -155,6 +173,8 @@ def cmd_check(args):
                                    "missing": [k for k in ("name", "type") if not rec[k]]})
 
     dangling, unsupported, unknown_pred, missing_rel = [], [], [], []
+    evidence_missing_quote = []
+    node_ids = set(ents.keys())
     direction_pairs = {}
     weak, degrees = [], {k: 0 for k in ents}
     valid_preds = set(SCHEMA["relation_types"].keys())
@@ -178,6 +198,16 @@ def cmd_check(args):
                              "action": "改用实体 id 引用"})
         anchor = r.get("anchor") or r.get("evidence_anchor")
         evidence = r.get("evidence") or r.get("quote")
+        if isinstance(evidence, dict):
+            anchor = anchor or evidence.get("anchor")
+            evidence = evidence.get("quote") or evidence.get("text") or evidence.get("source")
+        # 证据写成论文实体 id（"evidence":"e4"）时，说明有出处但没有原文片段：
+        # 记为提示而不是"无支撑"，否则合法图谱会被整片误判。
+        if isinstance(evidence, str) and (evidence.strip() in node_ids):
+            evidence_missing_quote.append({"id": rid, "subject": s_id, "object": o_id,
+                                           "predicate": pred, "evidence_entity": evidence.strip(),
+                                           "action": "证据只给了论文实体：建议补 evidence 原文片段与 anchor，便于回查"})
+            evidence = evidence.strip()
         if not anchor or not evidence:
             unsupported.append({"id": rid, "subject": s_id, "object": o_id, "predicate": pred,
                                 "missing": [x for x, v in (("anchor", anchor), ("evidence", evidence)) if not v],
@@ -247,6 +277,7 @@ def cmd_check(args):
         "evidence_coverage": round(covered / len(raw_rels), 4) if raw_rels else 0.0,
         "avg_degree": round(sum(degrees.values()) / max(1, len(ents)), 3),
         "dangling": dangling[:40], "unsupported": unsupported[:40],
+        "evidence_missing_quote": evidence_missing_quote[:40],
         "duplicates": duplicates[:30], "unknown_predicates": unknown_pred[:30],
         "direction_conflicts": conflicts[:20], "isolated": isolated[:30],
         "weak_evidence": weak[:20], "missing_fields": missing_fields[:30],
@@ -257,7 +288,7 @@ def cmd_check(args):
             "evidence_coverage": f"证据齐备关系 {covered} / {len(raw_rels)}（{round(covered/max(1,len(raw_rels))*100,1)}%）",
         },
     }
-    outdir = Path(args.out)
+    outdir = _as_outdir(args.out)
     outdir.mkdir(parents=True, exist_ok=True)
     (outdir / "kg_report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     md = ["# 知识图谱结构校验报告", "",
