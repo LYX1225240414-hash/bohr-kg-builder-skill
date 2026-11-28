@@ -1,0 +1,48 @@
+name: kg-builder
+version: 1.0.0
+entrypoint: ../SKILL.md
+bundle_root: ..
+description: >
+  文献知识图谱构建 Skill 的资源清单。执行内核为 resources/scripts/kg_lint.py，
+  负责 schema 导出、图谱结构校验（悬空边/无证据边/重复实体/方向冲突/孤立节点）与子图查询。
+
+resources:
+  - path: resources/scripts/kg_lint.py
+    kind: executable
+    runtime: python3
+    entry: "python3 resources/scripts/kg_lint.py"
+    subcommands: [schema, check, query]
+    requires: []          # 纯标准库
+    inputs: ["/app/work/graph.json（entities + relations）", "实体名或关系类型（查询时）"]
+    outputs: ["/app/work/schema.json", "/app/work/kg_report.json",
+              "/app/work/kg_report.md", "stdout 子图 JSON"]
+    outputs_note: >
+      kg_report.json 的 verification_hint 给出 entity_grounding / relation_integrity /
+      alias_alignment / evidence_coverage 四项计数口径，可直接写入 result.json。
+
+  - path: resources/checklist.md
+    kind: doc
+    purpose: 带计数的自检清单（对应 verification 八项）
+
+  - path: resources/field_dict.md
+    kind: doc
+    purpose: 实体/关系字段字典、锚点格式、强度与方向判定口径
+
+  - path: resources/output_example.json
+    kind: sample
+    purpose: 输出结构示意（占位，非任何真实案例图谱）
+
+  - path: examples/README.md
+    kind: doc
+    purpose: 最小调用示例与完整步骤
+
+runtime:
+  python: ">=3.9"
+  network: not_required
+  schema:
+    entity_types: [researcher, material, method, task, metric, dataset, condition, conclusion]
+    relation_types: [uses, applied_to, compares_with, outperforms, supports,
+                     contradicts, part_of, measured_by, derived_from, authored_by]
+  notes: >
+    脚本只做结构校验与检索，不判断语义真假。duplicates 给合并建议但需人工确认，
+    避免把"同名不同物"错误合并；dangling/unsupported 修完必须重跑到 0。
