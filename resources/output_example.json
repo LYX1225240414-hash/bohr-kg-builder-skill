@@ -1,18 +1,108 @@
 {
-  "case_id": "示例，非真实案例",
-  "status": "success",
-  "result": "[示例主结果，仅展示结构]",
+  "_note": "结构示意，非任何真实案例的图谱或答案；所有名称、片段、数字均为占位示例。",
+  "case_id": "<从 case.json 原样回填>",
+  "status": "partial",
+  "entities": [
+    {
+      "id": "e1",
+      "name": "<原文表述的实体名，如某材料/方法>",
+      "type": "material",
+      "aliases": ["<缩写或别名，如 LFP>"],
+      "paper": "P1",
+      "anchor": "P1@p2:3",
+      "evidence": "<原文短引，≤120 字>",
+      "confidence": "high"
+    },
+    {
+      "id": "e2",
+      "name": "<指标名>",
+      "type": "metric",
+      "aliases": [],
+      "paper": "P1",
+      "anchor": "P1@p4:7",
+      "evidence": "<原文短引>",
+      "confidence": "high"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "subject": "e1",
+      "predicate": "measured_by",
+      "object": "e2",
+      "anchor": "P1@p4:8",
+      "evidence": "<原文短引，须能支撑该关系>",
+      "strength": "direct",
+      "condition": "<适用条件，如测试温度/倍率；无则空>",
+      "paper": "P1"
+    }
+  ],
+  "alias_decisions": [
+    {
+      "canonical": "e1",
+      "variants": ["<全称>", "<缩写>"],
+      "decision": "merge",
+      "reason": "<合并依据，如原文某处明确两者等同>",
+      "anchor": "P1@p2:3"
+    }
+  ],
+  "queries": [
+    {
+      "question": "<真实问题，如：该材料在何条件下达到某指标>",
+      "answer": "<基于子图的结论>",
+      "subgraph": {"entities": ["e1", "e2"], "relations": ["r1"]},
+      "evidence": [{"anchor": "P1@p4:8", "quote": "<原文短引>"}],
+      "undetermined": "<图上答不出的部分及原因；无则空字符串>"
+    },
+    {
+      "question": "<第二条真实问题>",
+      "answer": "<结论>",
+      "subgraph": {"entities": [], "relations": []},
+      "evidence": [],
+      "undetermined": "<图谱中无相关信息：该论文未报告此项>"
+    },
+    {
+      "question": "<第三条真实问题>",
+      "answer": "<结论>",
+      "subgraph": {"entities": [], "relations": []},
+      "evidence": [],
+      "undetermined": ""
+    }
+  ],
   "evidence_map": [
     {
-      "claim": "[示例论断]",
-      "evidence": "[示例原文短引]",
-      "anchor": "p1:1"
+      "claim": "<论断>",
+      "evidence": "<原文短引>",
+      "anchor": "P1@p4:8",
+      "paper": "P1",
+      "source_type": "text"
     }
   ],
   "verification": {
-    "fact_preservation": "示例：通过",
-    "anchor_validity": "示例：通过"
+    "entity_grounding": {"result": "pass", "evidence": "实体 <N> 个；缺 name/type 0 个"},
+    "relation_integrity": {"result": "pass", "evidence": "关系 <M> 条；悬空 0；证据缺失 0"},
+    "alias_alignment": {"result": "pass", "evidence": "疑似重复组 0；孤立实体 0"},
+    "evidence_coverage": {"result": "pass", "evidence": "证据齐备 <M> / <M>"},
+    "query_answerability": {"result": "pass", "evidence": "可答 <2> / 查询 <3>"},
+    "direction_accuracy": {"result": "pass", "evidence": "方向正确 5 / 抽查 5"},
+    "no_new_facts": {"result": "pass", "evidence": "材料外新增实体或关系 0"},
+    "uncertainty_disclosure": {"result": "pass", "evidence": "已披露 <1> / 发现 <1>"}
   },
-  "uncertainties": [],
-  "change_log": []
+  "uncertainties": [
+    {
+      "item": "<无法判断的实体或关系>",
+      "reason": "<原因，如同名但无法确认是否同一对象>",
+      "anchor": "P1@p3:2",
+      "question_for_author": "<需作者确认的问题>"
+    }
+  ],
+  "sources": {
+    "papers": [{"id": "P1", "path": "<输入路径>", "pages": "<页码范围>", "extract": "text_layer"}],
+    "tool": "kg_lint.py",
+    "schema": "resources/scripts/kg_lint.py:SCHEMA"
+  },
+  "change_log": [
+    {"step": "extract", "issue": "<初始抽取>", "fix": "-", "location": "P1@p2:3"},
+    {"step": "lint", "issue": "<kg_lint 发现的悬空边>", "fix": "<补登记实体>", "location": "r2"}
+  ]
 }
