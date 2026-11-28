@@ -1,5 +1,5 @@
 name: kg-builder
-version: 1.0.0
+version: 1.1.0
 entrypoint: ../SKILL.md
 bundle_root: ..
 description: >
@@ -46,3 +46,6 @@ runtime:
   notes: >
     脚本只做结构校验与检索，不判断语义真假。duplicates 给合并建议但需人工确认，
     避免把"同名不同物"错误合并；dangling/unsupported 修完必须重跑到 0。
+
+changelog:
+  - "1.1.0: 证据写成论文实体 id 时按“缺原文片段”提示而非无支撑；--out 兼容目录或文件名。"
